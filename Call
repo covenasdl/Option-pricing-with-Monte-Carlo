@@ -1,0 +1,46 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+S = 100
+T = 1 #Time period
+r = 0.05 #Discount rate
+sigma = 0.1
+K = 100
+Nsimulations = 1000
+Nsteps = 50
+
+#Brownian Motion for the daily prices
+dt= T/Nsteps
+
+# Define  BrownianMotion
+drift = (r-(sigma**2)/2)*dt
+a = sigma*np.sqrt(dt)
+x= np.random.normal(0,1,(Nsimulations,Nsteps)) #random variable
+
+#Stock matrix
+Smat= np.zeros((Nsimulations, Nsteps))
+Smat[:,0]=S
+
+
+# Implement Brownian Motion
+for i in range(1, Nsteps):
+    Smat[:,i] = Smat[:, i-1] * np.exp(drift + a*x[:,i])
+
+
+# Payoff call
+c = Smat[:,-1]-K
+for i in range(len(c)): #No negative payoffs as they are options
+    if c[i]<0:
+        c[i]=0
+    else:
+        c[i]=c[i]
+
+
+payoff_call=np.mean(c)
+
+#Discount it back to todays price
+call=payoff_call*np.exp(-r*T)
+
+print(call)
+
+
